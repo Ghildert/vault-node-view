@@ -1,0 +1,52 @@
+<section class="nodevault-bubble-view">
+  <div class="tw-flex tw-items-center tw-gap-2 tw-pb-3">
+    <bit-search
+      class="tw-min-w-0 tw-flex-1"
+      placeholder="Search logins"
+      [ngModel]="''"
+      (ngModelChange)="engine()?.setSearch($event)"
+    />
+    <button bitButton buttonType="secondary" type="button" (click)="toggleShape()">
+      {{ rounded() ? "Rounded" : "Circles" }}
+    </button>
+  </div>
+  <div class="tw-relative tw-flex tw-min-h-0 tw-flex-1">
+    <div
+      class="nodevault-canvas"
+      #canvas
+      tabindex="0"
+      role="group"
+      aria-label="Vault bubble canvas"
+    >
+      <p class="nodevault-hint">
+        Drag bubbles to rearrange (layout only). Drag the background to pan, scroll to zoom.
+      </p>
+    </div>
+    <div class="tw-absolute tw-bottom-3 tw-end-3 tw-flex tw-gap-1">
+      <button
+        type="button"
+        bitIconButton="bwi-subtract"
+        buttonType="secondary"
+        size="small"
+        [label]="'zoomOut' | i18n"
+        (click)="engine()?.zoomBy(0.8)"
+      ></button>
+      <button
+        type="button"
+        bitIconButton="bwi-target-system"
+        buttonType="secondary"
+        size="small"
+        label="Fit graph"
+        (click)="engine()?.fit()"
+      ></button>
+      <button
+        type="button"
+        bitIconButton="bwi-plus"
+        buttonType="secondary"
+        size="small"
+        [label]="'zoomIn' | i18n"
+        (click)="engine()?.zoomBy(1.25)"
+      ></button>
+    </div>
+  </div>
+</section>

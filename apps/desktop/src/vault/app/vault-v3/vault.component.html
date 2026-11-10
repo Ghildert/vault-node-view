@@ -6,7 +6,23 @@
     class="tw-shrink-0"
   ></vault-organization-user-notifications>
   <div [ngClass]="vfo1Foundation() ? 'tw-px-8' : 'tw-pt-6 tw-px-6'">
-    <app-header [title]="title()">
+    <ng-template #viewToggle>
+      <button
+        type="button"
+        class="tw-cursor-pointer tw-border-0 tw-bg-transparent tw-p-0 tw-text-[color:inherit] [font:inherit] hover:tw-underline focus-visible:tw-underline"
+        [attr.aria-label]="
+          showBubbleView() ? 'Node view. Switch to Vault' : 'Vault view. Switch to Node'
+        "
+        [title]="showBubbleView() ? 'Switch to Vault' : 'Switch to Node'"
+        (click)="showBubbleView.set(!showBubbleView())"
+      >
+        {{ showBubbleView() ? "Node" : "Vault" }}
+      </button>
+    </ng-template>
+    <app-header
+      [title]="title()"
+      [titleTemplate]="canShowBubbleView() && showViewToggleInTitle() ? viewToggle : undefined"
+    >
       @if (showBreadcrumbs()) {
         <vault-breadcrumbs slot="breadcrumbs" [scope]="vaultScope()" />
       } @else if (headerTile(); as tile) {
@@ -19,6 +35,11 @@
           size="sm"
           aria-hidden="true"
         />
+      }
+      @if (canShowBubbleView() && !showViewToggleInTitle()) {
+        <span slot="title-suffix" class="tw-ml-2">
+          <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
+        </span>
       }
       @if (!vfo1Foundation()) {
         <vault-new-cipher-menu
@@ -33,7 +54,15 @@
       }
     </app-header>
   </div>
-  @if (vfo1Foundation()) {
+  @if (showBubbleView() && canShowBubbleView()) {
+    <app-nodevault-bubble-view
+      class="tw-flex tw-flex-1 tw-min-h-0"
+      [folders]="folders()"
+      [items]="bubbleItems()"
+      [selectedItemId]="bubbleDrawerItemId()"
+      (openItem)="openBubbleItem($event)"
+    />
+  } @else if (vfo1Foundation()) {
     <!--
       Padded to the page gutters rather than the table's own container, so it lines up with the
       header above it. Renders nothing outside a shared folder, leaving no gap in its place.

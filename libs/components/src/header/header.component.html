@@ -6,6 +6,14 @@
   <ng-content select="[slot=title-suffix]"></ng-content>
 </ng-template>
 
+<ng-template #titleText>
+  @if (titleTemplate(); as template) {
+    <ng-container *ngTemplateOutlet="template"></ng-container>
+  } @else {
+    {{ title() }}
+  }
+</ng-template>
+
 <ng-template #defaultContent>
   <ng-content></ng-content>
 </ng-template>
@@ -38,7 +46,7 @@
                     <bit-icon [name]="icon()" />
                   }
 
-                  {{ title() }}
+                  <ng-container *ngTemplateOutlet="titleText"></ng-container>
                 </div>
               </div>
             </h1>
@@ -79,7 +87,7 @@
               <i class="bwi {{ icon() }}" aria-hidden="true"></i>
             }
 
-            {{ title() }}
+            <ng-container *ngTemplateOutlet="titleText"></ng-container>
           </div>
           <div>
             <ng-container #titleSuffixOutlet></ng-container>

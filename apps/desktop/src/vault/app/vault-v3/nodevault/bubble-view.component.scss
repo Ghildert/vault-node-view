@@ -1,0 +1,167 @@
+.nodevault-bubble-view {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 1.5rem 1rem;
+}
+
+.nodevault-canvas {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  isolation: isolate;
+  color: rgb(var(--color-text-main));
+  background: rgb(var(--color-background-alt))
+    radial-gradient(rgb(var(--color-text-muted) / 0.28) 1px, transparent 1px);
+  background-size: 24px 24px;
+  border: 1px solid rgb(var(--color-border-base));
+  border-radius: 0.75rem;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.nodevault-canvas:active,
+.nodevault-canvas:active .nodevault-bubble {
+  cursor: grabbing;
+}
+
+.nodevault-canvas .nodevault-hint {
+  position: absolute;
+  z-index: 1;
+  inset: 0.75rem 1rem auto;
+  color: rgb(var(--color-text-muted));
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+.nodevault-canvas .nodevault-world {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0 0;
+}
+
+.nodevault-canvas .nodevault-bubble {
+  position: absolute;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid rgb(var(--color-primary-600) / 0.55);
+  border-radius: 50%;
+  background: rgb(var(--color-primary-600) / 0.06);
+}
+
+.nodevault-canvas .nodevault-rounded .nodevault-bubble {
+  border-radius: 24px;
+}
+
+.nodevault-canvas .nodevault-bubble.service {
+  border-style: dashed;
+  border-color: rgb(var(--color-primary-600) / 0.7);
+  background: rgb(var(--color-primary-600) / 0.09);
+}
+
+.nodevault-canvas .nodevault-bubble.empty {
+  border-style: dashed;
+  border-color: rgb(var(--color-text-muted) / 0.4);
+}
+
+.nodevault-canvas .nodevault-bubble.account {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: inherit;
+  background: color-mix(in srgb, rgb(var(--color-primary-600)) 22%, rgb(var(--color-background)));
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.nodevault-canvas .nodevault-bubble.account:hover:not(.dimmed) {
+  z-index: 1;
+  scale: 1.1;
+}
+
+.nodevault-canvas .nodevault-account-icon {
+  pointer-events: none;
+}
+
+// Desktop offsets vault icons to align with list rows.
+.nodevault-canvas app-vault-icon.nodevault-account-icon > div {
+  float: none;
+  margin: 0;
+}
+
+.nodevault-canvas app-vault-icon.nodevault-account-icon > div > div {
+  display: grid;
+  place-items: center;
+}
+
+.nodevault-canvas app-vault-icon.nodevault-account-icon i {
+  line-height: 1;
+}
+
+.nodevault-canvas .nodevault-bubble.active {
+  box-shadow: inset 0 0 0 2px rgb(var(--color-primary-600));
+  border-color: rgb(var(--color-primary-600));
+}
+
+.nodevault-canvas:focus-visible,
+.nodevault-canvas .nodevault-bubble:focus-visible {
+  outline: 2px solid rgb(var(--color-primary-600));
+  outline-offset: 2px;
+}
+
+// Dim each branch once, even when both the parent and its children miss.
+.nodevault-canvas .nodevault-bubble.dimmed {
+  opacity: 0.25;
+}
+
+.nodevault-canvas .nodevault-bubble.dimmed .nodevault-bubble.dimmed {
+  opacity: 1;
+}
+
+.nodevault-canvas .account-label,
+.nodevault-canvas .nodevault-heading {
+  position: absolute;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.nodevault-canvas .account-label {
+  top: calc(100% + 4px);
+  left: 50%;
+  width: 90px;
+  transform: translateX(-50%);
+  font-size: 12px;
+}
+
+.nodevault-canvas .nodevault-heading {
+  inset: 14px 12px auto;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.nodevault-canvas .nodevault-bubble.service .nodevault-heading {
+  top: 9px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.nodevault-canvas .nodevault-count {
+  display: block;
+  color: rgb(var(--color-text-muted));
+  font-size: 11px;
+  font-weight: 400;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nodevault-canvas .nodevault-camera-transition {
+    transition: transform 280ms ease-out;
+  }
+}

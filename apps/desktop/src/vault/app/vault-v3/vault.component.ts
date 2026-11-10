@@ -53,6 +53,8 @@ import {
   getFlatCollectionTree,
 } from "@bitwarden/common/admin-console/utils";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
@@ -159,6 +161,8 @@ import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 
 import { AssignCollectionsDesktopDialogAdapter } from "./bulk-action-dialogs/assign-collections-desktop-dialog.adapter";
 import { BulkDeleteDialogDesktopAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-desktop.adapter";
+import { BubbleLogin } from "./nodevault/bubble-canvas";
+import { BubbleViewComponent } from "./nodevault/bubble-view.component";
 import { VaultItemEvent } from "./vault-items/vault-item-event";
 import { VaultListTableComponent } from "./vault-list-table/vault-list-table.component";
 import { VaultListComponent } from "./vault-list.component";
@@ -202,6 +206,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultBreadcrumbsComponent,
     IconTileComponent,
     VaultRemountOnDirective,
+    BubbleViewComponent,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
@@ -229,6 +234,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private toastService = inject(ToastService);
   private accountService = inject(AccountService);
+  private authService = inject(AuthService);
   private cipherService = inject(CipherService);
   private premiumUpgradePromptService = inject(PremiumUpgradePromptService);
   private collectionService = inject(CollectionService);
@@ -263,6 +269,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected readonly cipher = signal<CipherView | null>(null);
 
   private activeUserId: UserId | null = null;
+  private readonly bubbleAccount = toSignal(this.accountService.activeAccount$);
+  private readonly bubbleAuthStatus = toSignal(this.authService.activeAccountStatus$);
+  protected readonly showBubbleView = signal(false);
+  private readonly bubbleRows = signal<C[]>([]);
+  protected readonly bubbleDrawerItemId = signal<string | null>(null);
+  private openingBubbleItem = false;
+  protected readonly bubbleItems = computed(() =>
+    this.showBubbleView() && this.canShowBubbleView()
+      ? this.bubbleRows().filter(isBubbleLogin).map(toBubbleLogin)
+      : [],
+  );
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   showPremiumCallout$: Observable<boolean> = this.userId$.pipe(
     switchMap((userId) =>
@@ -336,6 +353,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   /** {@link vaultScope$} for the template — the card grid renders the folder it has drilled into. */
   protected readonly vaultScope = toSignal(this.vaultScope$, { initialValue: ALL_ITEMS_SCOPE });
+
+  protected readonly showViewToggleInTitle = computed(
+    () => !this.vfo1Foundation() || this.vaultScope().type === VaultScopeType.AllItems,
+  );
 
   /**
    * The scope key the vault table's filter state belongs to. Read from the route rather than from
@@ -843,6 +864,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             ? allOrganizations.filter((organization) => organizationInScope(organization, scope))
             : allOrganizations;
           this.ciphers = ciphers;
+          this.bubbleRows.set(ciphers);
           this.collectionsToDisplay = collections;
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           const initialLoad = this.performingInitialLoad;
@@ -905,11 +927,36 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   ngOnDestroy() {
+    this.bubbleRows.set([]);
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
     this.destroy$.next();
     this.destroy$.complete();
     this.vaultFilterService.clearOrganizationFilter();
     void this.activeDrawerRef?.close();
+  }
+
+  protected canShowBubbleView() {
+    return (
+      this.activeUserId != null &&
+      this.bubbleAccount()?.id === this.activeUserId &&
+      this.bubbleAuthStatus() === AuthenticationStatus.Unlocked
+    );
+  }
+
+  protected async openBubbleItem(id: string) {
+    if (!this.canShowBubbleView() || this.openingBubbleItem) {
+      return;
+    }
+    const item = this.ciphers.find((cipher) => String(cipher.id) === id && isBubbleLogin(cipher));
+    if (item) {
+      // The existing drawer owns permissions, password reprompt, edit/save, and delete confirmation.
+      this.openingBubbleItem = true;
+      try {
+        await this.onVaultItemsEvent({ type: "viewCipher", item });
+      } finally {
+        this.openingBubbleItem = false;
+      }
+    }
   }
 
   async onVaultItemsEvent(event: VaultItemEvent<C>) {
@@ -1265,12 +1312,18 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       restore: this.restore,
     });
     this.activeDrawerRef = drawerRef;
+    this.bubbleDrawerItemId.set(
+      drawerRef && formConfig.mode !== "add" && formConfig.mode !== "clone"
+        ? formConfig.originalCipher.id
+        : null,
+    );
     drawerRef?.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       // Opening a new drawer closes the previous one, which emits `closed` after the new
       // drawer is already active. Only clear state if this drawer is still the active one,
       // so switching items doesn't wipe the newly-selected cipher used by copy shortcuts.
       if (this.activeDrawerRef === drawerRef) {
         this.activeDrawerRef = undefined;
+        this.bubbleDrawerItemId.set(null);
         this.cipher.set(null);
       }
       void this.router.navigate([], {
@@ -1328,4 +1381,41 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
     return repromptResult;
   }
+}
+
+function isBubbleLogin(cipher: CipherViewLike): boolean {
+  return (
+    !cipher.organizationId &&
+    !CipherViewLikeUtils.decryptionFailure(cipher) &&
+    !CipherViewLikeUtils.isDeleted(cipher) &&
+    !CipherViewLikeUtils.isArchived(cipher) &&
+    CipherViewLikeUtils.getLogin(cipher) != null
+  );
+}
+
+function toBubbleLogin(cipher: CipherViewLike): BubbleLogin {
+  const uri = CipherViewLikeUtils.uri(cipher)?.trim();
+  let serviceHost: string | undefined;
+  if (uri) {
+    try {
+      // Bitwarden also supports website fields entered without a scheme.
+      const url = new URL(uri.includes("://") || /^https?:/i.test(uri) ? uri : `https://${uri}`);
+      if (
+        (url.protocol === "http:" || url.protocol === "https:") &&
+        !url.username &&
+        !url.password
+      ) {
+        serviceHost = url.hostname;
+      }
+    } catch {
+      // Keep logins without a usable HTTP(S) host as standalone bubbles.
+    }
+  }
+  return {
+    id: String(cipher.id),
+    name: cipher.name,
+    folderId: cipher.folderId ? String(cipher.folderId) : null,
+    itemType: "login",
+    serviceHost,
+  };
 }

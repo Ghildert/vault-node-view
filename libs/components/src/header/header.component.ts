@@ -68,6 +68,9 @@ export class HeaderComponent {
    */
   readonly title = input.required<string>();
 
+  /** Optional content to render in place of the title text. */
+  readonly titleTemplate = input<TemplateRef<unknown>>();
+
   /**
    * Icon to show before the title
    */

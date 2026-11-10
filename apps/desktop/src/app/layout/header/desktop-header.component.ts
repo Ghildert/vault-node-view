@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  TemplateRef,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { map } from "rxjs";
@@ -40,6 +47,8 @@ export class DesktopHeaderComponent {
    * Title to display in header (takes precedence over route data)
    */
   readonly title = input<string>();
+
+  readonly titleTemplate = input<TemplateRef<unknown>>();
 
   /**
    * Icon to show before the title
