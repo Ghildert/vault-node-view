@@ -328,6 +328,7 @@ export class Main {
       app.getPath("userData"),
       app.getPath("exe"),
       app.getAppPath(),
+      app.name !== "Bitwarden Node",
     );
 
     this.ipcService = new IpcMainService(
@@ -404,9 +405,10 @@ export class Main {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();
-        const trayName = this.i18nService.t(
-          flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden",
-        );
+        const trayName =
+          app.name === "Bitwarden Node"
+            ? app.name
+            : this.i18nService.t(flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden");
         await this.trayMain.init(trayName, [
           {
             label: this.i18nService.t("lockVault"),
@@ -448,15 +450,17 @@ export class Main {
           this.logService.error("Error while setting up native messaging:", err);
         }
 
-        app.removeAsDefaultProtocolClient("bitwarden");
-        if (process.env.NODE_ENV === "development" && process.platform === "win32") {
-          // Fix development build on Windows requiring a different protocol client
-          app.setAsDefaultProtocolClient("bitwarden", process.execPath, [
-            process.argv[1],
-            path.resolve(process.argv[2]),
-          ]);
-        } else {
-          app.setAsDefaultProtocolClient("bitwarden");
+        if (app.name !== "Bitwarden Node") {
+          app.removeAsDefaultProtocolClient("bitwarden");
+          if (process.env.NODE_ENV === "development" && process.platform === "win32") {
+            // Fix development build on Windows requiring a different protocol client
+            app.setAsDefaultProtocolClient("bitwarden", process.execPath, [
+              process.argv[1],
+              path.resolve(process.argv[2]),
+            ]);
+          } else {
+            app.setAsDefaultProtocolClient("bitwarden");
+          }
         }
 
         // Process protocol for macOS

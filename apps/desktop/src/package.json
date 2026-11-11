@@ -1,8 +1,8 @@
 {
-  "name": "@bitwarden/desktop",
-  "productName": "Bitwarden",
-  "desktopName": "bitwarden.desktop",
-  "description": "A secure and free password manager for all of your devices.",
+  "name": "bitwarden-node",
+  "productName": "Bitwarden Node",
+  "desktopName": "bitwarden-node.desktop",
+  "description": "A local Bitwarden Desktop fork with a node-based vault view.",
   "version": "2026.10.4",
   "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
   "homepage": "https://bitwarden.com",

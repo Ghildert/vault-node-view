@@ -14,7 +14,7 @@ import {
   OnInit,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -30,6 +30,9 @@ import {
   distinctUntilChanged,
   of,
   skip,
+  from,
+  catchError,
+  startWith,
 } from "rxjs";
 import { filter, map, shareReplay, concatMap, tap } from "rxjs/operators";
 
@@ -161,7 +164,8 @@ import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 
 import { AssignCollectionsDesktopDialogAdapter } from "./bulk-action-dialogs/assign-collections-desktop-dialog.adapter";
 import { BulkDeleteDialogDesktopAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-desktop.adapter";
-import { BubbleLogin } from "./nodevault/bubble-canvas";
+import { BubbleLogin, BubbleMove } from "./nodevault/bubble-canvas";
+import { LoginSearchDocument, toLoginSearchDocument } from "./nodevault/login-search";
 import { BubbleViewComponent } from "./nodevault/bubble-view.component";
 import { VaultItemEvent } from "./vault-items/vault-item-event";
 import { VaultListTableComponent } from "./vault-list-table/vault-list-table.component";
@@ -275,12 +279,36 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private readonly bubbleRows = signal<C[]>([]);
   protected readonly bubbleDrawerItemId = signal<string | null>(null);
   private openingBubbleItem = false;
+  private movingBubbleItems = false;
   protected readonly bubbleItems = computed(() =>
     this.showBubbleView() && this.canShowBubbleView()
       ? this.bubbleRows().filter(isBubbleLogin).map(toBubbleLogin)
       : [],
   );
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  private readonly bubbleSearchRows = computed(() =>
+    this.showBubbleView() && this.canShowBubbleView()
+      ? this.bubbleRows().filter(isBubbleLogin)
+      : [],
+  );
+  protected readonly bubbleSearchDocuments = toSignal(
+    toObservable(this.bubbleSearchRows).pipe(
+      switchMap((rows) =>
+        from(
+          Promise.all(
+            rows.map(async (row) => {
+              const cipher = await this.cipherService.getFullCipherView(row);
+              return toLoginSearchDocument(cipher);
+            }),
+          ),
+        ).pipe(
+          startWith([] as LoginSearchDocument[]),
+          catchError(() => of([] as LoginSearchDocument[])),
+        ),
+      ),
+    ),
+    { initialValue: [] as LoginSearchDocument[] },
+  );
   showPremiumCallout$: Observable<boolean> = this.userId$.pipe(
     switchMap((userId) =>
       combineLatest([
@@ -956,6 +984,67 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       } finally {
         this.openingBubbleItem = false;
       }
+    }
+  }
+
+  protected async moveBubbleItems({ items, folderId }: BubbleMove) {
+    const userId = this.activeUserId;
+    const currentItems = () =>
+      items.map(({ id, folderId }) =>
+        this.ciphers.find(
+          (cipher) =>
+            String(cipher.id) === id &&
+            (cipher.folderId ?? null) === folderId &&
+            isBubbleLogin(cipher),
+        ),
+      );
+    const canMove = () =>
+      this.canShowBubbleView() &&
+      this.activeUserId === userId &&
+      this.showBubbleView() &&
+      (folderId === null || this.folders().some((folder) => folder.id === folderId));
+    if (this.movingBubbleItems || !canMove()) return;
+    const ciphers = currentItems();
+    if (!ciphers.every((cipher) => cipher != null)) return;
+    if (items.some(({ id }) => id === this.bubbleDrawerItemId())) {
+      this.toastService.showToast({
+        variant: "info",
+        message: "Close the item details before moving it.",
+      });
+      return;
+    }
+
+    this.movingBubbleItems = true;
+    try {
+      const fullCiphers = await Promise.all(
+        ciphers.map((cipher) => this.cipherService.getFullCipherView(cipher)),
+      );
+      if (!fullCiphers.every((cipher) => cipher?.edit) || !canMove()) return;
+      if (
+        fullCiphers.some((cipher) => cipher.reprompt !== CipherRepromptType.None) &&
+        !(await this.passwordRepromptService.showPasswordPrompt())
+      ) {
+        return;
+      }
+      if (!canMove() || !currentItems().every((cipher) => cipher != null)) return;
+      await this.cipherService.moveManyWithServer(
+        items.map(({ id }) => id),
+        folderId,
+        userId,
+      );
+      this.refresh();
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t(items.length === 1 ? "movedItem" : "movedItems"),
+      });
+    } catch (error) {
+      this.logService.error(error);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    } finally {
+      this.movingBubbleItems = false;
     }
   }
 

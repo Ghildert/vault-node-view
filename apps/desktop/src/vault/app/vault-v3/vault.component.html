@@ -59,8 +59,10 @@
       class="tw-flex tw-flex-1 tw-min-h-0"
       [folders]="folders()"
       [items]="bubbleItems()"
+      [searchDocuments]="bubbleSearchDocuments()"
       [selectedItemId]="bubbleDrawerItemId()"
       (openItem)="openBubbleItem($event)"
+      (moveItems)="moveBubbleItems($event)"
     />
   } @else if (vfo1Foundation()) {
     <!--

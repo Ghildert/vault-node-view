@@ -30,7 +30,8 @@ export class TrayMain {
     private biometricService: BiometricsService,
   ) {
     if (process.platform === "win32") {
-      this.icon = path.join(__dirname, "/images/icon.ico");
+      const filename = app.name === "Bitwarden Node" ? "icon_node.ico" : "icon.ico";
+      this.icon = path.join(__dirname, "images", filename);
     } else if (process.platform === "darwin") {
       const nImage = nativeImage.createFromPath(path.join(__dirname, "/images/icon-template.png"));
       nImage.setTemplateImage(true);

@@ -1,0 +1,35 @@
+{
+  "productName": "Bitwarden Node",
+  "appId": "local.bitwarden.node",
+  "electronVersion": "43.5.0",
+  "electronDist": "../../node_modules/electron/dist",
+  "beforeBuild": "scripts/after-pack-node.js",
+  "afterPack": "scripts/after-pack-node.js",
+  "directories": {
+    "app": "build",
+    "output": "dist-node"
+  },
+  "asarUnpack": ["**/*.node"],
+  "files": [
+    "**/*",
+    "!**/*.map",
+    {
+      "from": "../desktop_native/napi",
+      "to": "node_modules/@bitwarden/desktop-napi",
+      "filter": ["package.json", "index.js", "desktop_napi.win32-x64-msvc.node"]
+    }
+  ],
+  "portable": {
+    "artifactName": "Bitwarden Node.exe"
+  },
+  "win": {
+    "icon": "src/images/icon_node.ico",
+    "signAndEditExecutable": false,
+    "extraFiles": [
+      {
+        "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-x64.exe",
+        "to": "bitwarden_chromium_import_helper.exe"
+      }
+    ]
+  }
+}

@@ -25,6 +25,10 @@ Thumbs.db
 # Node
 node_modules
 npm-debug.log
+/.nodevault-npm-cache/
+/.local-archive/
+/nodevault-production-build.log
+/nodevault-renderer-build.log
 
 # Build directories
 dist

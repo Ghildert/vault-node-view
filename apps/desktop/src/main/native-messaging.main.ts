@@ -34,10 +34,14 @@ export class NativeMessagingMain {
     private userPath: string,
     private exePath: string,
     private appPath: string,
+    private readonly registerBrowserHosts = true,
   ) {
     ipcMain.handle(
       "nativeMessaging.manifests",
       async (_event: any, options: { create: boolean }) => {
+        if (!this.registerBrowserHosts) {
+          return new Error("Browser integration is unavailable in Bitwarden Node.");
+        }
         if (options.create) {
           try {
             await this.listen();
@@ -62,6 +66,9 @@ export class NativeMessagingMain {
     ipcMain.handle(
       "nativeMessaging.ddgManifests",
       async (_event: any, options: { create: boolean }) => {
+        if (!this.registerBrowserHosts) {
+          return new Error("Browser integration is unavailable in Bitwarden Node.");
+        }
         if (options.create) {
           try {
             await this.listen();
@@ -183,6 +190,9 @@ export class NativeMessagingMain {
   }
 
   async generateManifests() {
+    if (!this.registerBrowserHosts) {
+      return;
+    }
     const proxyPath = this.binaryPath();
     if (!existsSync(proxyPath)) {
       throw new Error(`Unable to find proxy binary: ${proxyPath}`);
@@ -358,6 +368,9 @@ export class NativeMessagingMain {
   }
 
   async generateDdgManifests() {
+    if (!this.registerBrowserHosts) {
+      return;
+    }
     const manifest = {
       name: "com.8bit.bitwarden",
       description: "Bitwarden desktop <-> DuckDuckGo bridge",

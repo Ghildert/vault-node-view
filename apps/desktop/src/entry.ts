@@ -41,6 +41,22 @@ if (
     process.exit(1);
   });
 } else {
+  if (app.name === "Bitwarden Node") {
+    process.env.BITWARDEN_NO_UPDATER = "1";
+    if (process.platform === "win32") {
+      app.setAppUserModelId("local.bitwarden.node");
+      // Reuse the local test profile without opening the official client's vault profile.
+      process.env.BITWARDEN_APPDATA_DIR ??= path.join(
+        process.env.LOCALAPPDATA ?? app.getPath("appData"),
+        "NodeVault-Bitwarden-Test",
+      );
+      process.env.BITWARDEN_IPC_SOCKET_DIR ??= process.env.BITWARDEN_APPDATA_DIR;
+      // The single-file launcher is portable, but this profile stays on this PC.
+      // Keep using Windows Credential Manager for the profile's encrypted tokens.
+      delete process.env.PORTABLE_EXECUTABLE_DIR;
+    }
+  }
+
   // macOS draws no window icon, so the dock is the only place a dev client can be told apart
   // from an installed one. __dirname is the build output directory at runtime.
   if (isDev() && process.platform === "darwin") {

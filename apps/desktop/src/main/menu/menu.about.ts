@@ -1,4 +1,4 @@
-import { BrowserWindow, clipboard, dialog, MenuItemConstructorOptions } from "electron";
+import { app, BrowserWindow, clipboard, dialog, MenuItemConstructorOptions } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -56,7 +56,8 @@ export class AboutMenu implements IMenubarMenu {
   private get aboutBitwarden(): MenuItemConstructorOptions {
     return {
       id: "aboutBitwarden",
-      label: this.localize("aboutBitwarden"),
+      label:
+        app.name === "Bitwarden Node" ? "About Bitwarden Node" : this.localize("aboutBitwarden"),
       click: async () => {
         const sdkVersion = await this._versionMain.sdkVersion();
         const aboutInformation =
@@ -71,9 +72,10 @@ export class AboutMenu implements IMenubarMenu {
           process.versions.node +
           "\nArchitecture " +
           process.arch;
-        const productName = this.localize(
-          flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden",
-        );
+        const productName =
+          app.name === "Bitwarden Node"
+            ? app.name
+            : this.localize(flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden");
         const result = await dialog.showMessageBox(this._window, {
           title: productName,
           message: productName,

@@ -1,14 +1,73 @@
 <section class="nodevault-bubble-view">
   <div class="tw-flex tw-items-center tw-gap-2 tw-pb-3">
-    <bit-search
-      class="tw-min-w-0 tw-flex-1"
-      placeholder="Search logins"
-      [ngModel]="''"
-      (ngModelChange)="engine()?.setSearch($event)"
-    />
+    <div class="nodevault-search">
+      <bit-search
+        #search
+        placeholder="Search logins or type @ for a specifier"
+        autocomplete="off"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="updateSearch($event)"
+        (focusin)="updateSuggestions()"
+        (focusout)="closeSuggestions()"
+        (click)="updateSuggestions()"
+        (keyup.arrowleft)="updateSuggestions()"
+        (keyup.arrowright)="updateSuggestions()"
+      />
+      @if (suggestions()?.options?.length) {
+        <div
+          id="nodevault-search-options"
+          class="nodevault-search-options"
+          role="listbox"
+          aria-label="Search specifiers"
+        >
+          @for (option of suggestions()!.options; track option; let index = $index) {
+            <div
+              role="option"
+              [id]="'nodevault-search-option-' + index"
+              [attr.aria-selected]="index === activeSuggestion()"
+              (mousedown)="$event.preventDefault()"
+              (mouseenter)="activeSuggestion.set(index)"
+              (click)="acceptSuggestion(option)"
+            >
+              {{ option }}
+            </div>
+          }
+          <p>↑ ↓ to select · Tab or Enter to insert</p>
+        </div>
+      }
+    </div>
     <button bitButton buttonType="secondary" type="button" (click)="toggleShape()">
       {{ rounded() ? "Rounded" : "Circles" }}
     </button>
+    <button
+      bitButton
+      buttonType="secondary"
+      type="button"
+      class="nodevault-settings-trigger"
+      popovertarget="nodevault-settings"
+    >
+      Settings
+    </button>
+  </div>
+  <div
+    id="nodevault-settings"
+    class="nodevault-settings"
+    popover
+    role="dialog"
+    aria-label="Node view settings"
+  >
+    <label class="nodevault-label-setting">
+      Characters before ellipsis
+      <input
+        #length
+        type="number"
+        min="1"
+        [max]="maxLabelLength"
+        required
+        [value]="labelLength()"
+        (change)="updateLabelLength(length)"
+      />
+    </label>
   </div>
   <div class="tw-relative tw-flex tw-min-h-0 tw-flex-1">
     <div
@@ -19,7 +78,8 @@
       aria-label="Vault bubble canvas"
     >
       <p class="nodevault-hint">
-        Drag bubbles to rearrange (layout only). Drag the background to pan, scroll to zoom.
+        Drag to rearrange. Pull past an outline, then drop on another folder to move. Drag the
+        background to pan, scroll to zoom.
       </p>
     </div>
     <div class="tw-absolute tw-bottom-3 tw-end-3 tw-flex tw-gap-1">
