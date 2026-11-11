@@ -6,7 +6,7 @@ import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 
 import { SafeShell } from "../../platform/main/safe-shell.main";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
-import { isMacAppStore, isWindowsStore } from "../platform-utils.main";
+import { isMacAppStore } from "../platform-utils.main";
 
 import { AboutMenu } from "./menu.about";
 import { IMenubarMenu } from "./menubar";
@@ -24,12 +24,7 @@ export class HelpMenu implements IMenubarMenu {
       this.fileBugReport,
       this.legal,
       this.separator,
-      this.followUs,
-      this.separator,
       this.goToWebVault,
-      this.separator,
-      this.getMobileApp,
-      this.getBrowserExtension,
       this.separator,
       this.troubleshooting,
     ];
@@ -54,7 +49,11 @@ export class HelpMenu implements IMenubarMenu {
     return {
       id: "helpAndFeedback",
       label: this.localize("helpAndFeedback"),
-      click: () => this.shell.openExternal("https://bitwarden.com/help", UrlType.WebUrl),
+      click: () =>
+        this.shell.openExternal(
+          "https://github.com/Ghildert/vault-node-view/blob/node-view/NODEVAULT.md",
+          UrlType.WebUrl,
+        ),
     };
   }
 
@@ -63,7 +62,10 @@ export class HelpMenu implements IMenubarMenu {
       id: "fileBugReport",
       label: this.localize("fileBugReport"),
       click: () =>
-        this.shell.openExternal("https://github.com/bitwarden/clients/issues", UrlType.WebUrl),
+        this.shell.openExternal(
+          "https://github.com/Ghildert/vault-node-view/issues",
+          UrlType.WebUrl,
+        ),
     };
   }
 
@@ -81,12 +83,20 @@ export class HelpMenu implements IMenubarMenu {
       {
         id: "termsOfService",
         label: this.localize("termsOfService"),
-        click: () => this.shell.openExternal("https://bitwarden.com/terms/", UrlType.WebUrl),
+        click: () =>
+          this.shell.openExternal(
+            "https://github.com/Ghildert/vault-node-view/blob/node-view/LICENSE.txt",
+            UrlType.WebUrl,
+          ),
       },
       {
         id: "privacyPolicy",
         label: this.localize("privacyPolicy"),
-        click: () => this.shell.openExternal("https://bitwarden.com/privacy/", UrlType.WebUrl),
+        click: () =>
+          this.shell.openExternal(
+            "https://github.com/Ghildert/vault-node-view/blob/node-view/README.md",
+            UrlType.WebUrl,
+          ),
       },
     ];
   }
@@ -95,140 +105,12 @@ export class HelpMenu implements IMenubarMenu {
     return { type: "separator" };
   }
 
-  private get followUs(): MenuItemConstructorOptions {
-    return {
-      id: "followUs",
-      label: this.localize("followUs"),
-      submenu: this.followUsSubmenu,
-    };
-  }
-
-  private get followUsSubmenu(): MenuItemConstructorOptions[] {
-    return [
-      {
-        id: "blog",
-        label: this.localize("blog"),
-        click: () => this.shell.openExternal("https://blog.bitwarden.com", UrlType.WebUrl),
-      },
-      {
-        id: "twitter",
-        label: "Twitter",
-        click: () => this.shell.openExternal("https://twitter.com/bitwarden", UrlType.WebUrl),
-      },
-      {
-        id: "facebook",
-        label: "Facebook",
-        click: () => this.shell.openExternal("https://www.facebook.com/bitwarden/", UrlType.WebUrl),
-      },
-      {
-        id: "github",
-        label: "GitHub",
-        click: () => this.shell.openExternal("https://github.com/bitwarden", UrlType.WebUrl),
-      },
-      {
-        id: "mastodon",
-        label: "Mastodon",
-        click: () => this.shell.openExternal("https://fosstodon.org/@bitwarden", UrlType.WebUrl),
-      },
-    ];
-  }
-
   private get goToWebVault(): MenuItemConstructorOptions {
     return {
       id: "goToWebVault",
       label: this.localize("goToWebVault"),
       click: () => this.shell.openExternal(this.webVaultUrl, UrlType.WebUrl),
     };
-  }
-
-  private get getMobileApp(): MenuItemConstructorOptions {
-    return {
-      id: "getMobileApp",
-      label: this.localize("getMobileApp"),
-      visible: !isWindowsStore(),
-      submenu: this.getMobileAppSubmenu,
-    };
-  }
-
-  private get getMobileAppSubmenu(): MenuItemConstructorOptions[] {
-    return [
-      {
-        id: "iOS",
-        label: "iOS",
-        click: () =>
-          this.shell.openExternal(
-            "https://itunes.apple.com/app/" + "bitwarden-free-password-manager/id1137397744?mt=8",
-            UrlType.WebUrl,
-          ),
-      },
-      {
-        id: "android",
-        label: "Android",
-        visible: !isMacAppStore(), // Apple Guideline 2.3.10 - Accurate Metadata
-        click: () =>
-          this.shell.openExternal(
-            "https://play.google.com/store/apps/" + "details?id=com.x8bit.bitwarden",
-            UrlType.WebUrl,
-          ),
-      },
-    ];
-  }
-
-  private get getBrowserExtension(): MenuItemConstructorOptions {
-    return {
-      id: "getBrowserExtension",
-      label: this.localize("getBrowserExtension"),
-      visible: !isWindowsStore(),
-      submenu: this.getBrowserExtensionSubmenu,
-    };
-  }
-
-  private get getBrowserExtensionSubmenu(): MenuItemConstructorOptions[] {
-    return [
-      {
-        id: "chrome",
-        label: "Chrome",
-        click: () =>
-          this.shell.openExternal(
-            "https://chromewebstore.google.com/detail/" +
-              "bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb",
-            UrlType.WebUrl,
-          ),
-      },
-      {
-        id: "firefox",
-        label: "Firefox",
-        click: () =>
-          this.shell.openExternal(
-            "https://addons.mozilla.org/firefox/addon/" + "bitwarden-password-manager/",
-            UrlType.WebUrl,
-          ),
-      },
-      {
-        id: "firefox",
-        label: "Opera",
-        click: () =>
-          this.shell.openExternal(
-            "https://addons.opera.com/extensions/details/" + "bitwarden-free-password-manager/",
-            UrlType.WebUrl,
-          ),
-      },
-      {
-        id: "firefox",
-        label: "Edge",
-        click: () =>
-          this.shell.openExternal(
-            "https://microsoftedge.microsoft.com/addons/" +
-              "detail/jbkfoedolllekgbhcbcoahefnbanhhlh",
-            UrlType.WebUrl,
-          ),
-      },
-      {
-        id: "safari",
-        label: "Safari",
-        click: () => this.shell.openExternal("https://bitwarden.com/download/", UrlType.WebUrl),
-      },
-    ];
   }
 
   private get troubleshooting(): MenuItemConstructorOptions {

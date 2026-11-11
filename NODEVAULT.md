@@ -1,6 +1,6 @@
-# Bitwarden Node
+# NodeVault
 
-This is a local source fork of Bitwarden Desktop `desktop-v2026.10.4`. Click the **Vault** heading button to open the node canvas, then click **Node** to return to the list. On scoped pages such as Trash, the button appears next to the page heading. Click a login bubble to open its details. With the keyboard, Tab into the graph, use the arrow keys to move between logins, and press Enter to open one. Bitwarden's original item drawer controls permissions, master-password reprompts, saves, and deletion confirmation. A standard deletion sends the login to Trash. Use the standard vault list for items outside this view, including shared vaults and Trash.
+This is an independent NodeVault fork based on Bitwarden® Desktop `desktop-v2026.10.4`. Click the **Vault** heading button to open the node canvas, then click **Node** to return to the list. On scoped pages such as Trash, the button appears next to the page heading. Click a login bubble to open its details. With the keyboard, Tab into the graph, use the arrow keys to move between logins, and press Enter to open one. Bitwarden's original item drawer controls permissions, master-password reprompts, saves, and deletion confirmation. A standard deletion sends the login to Trash. Use the standard vault list for items outside this view, including shared vaults and Trash.
 
 The canvas uses session-only positions and reads names, IDs, folder assignments, and a website hostname for optional grouping. Bitwarden Desktop owns sign-in, unlock, sync, and encrypted storage.
 
@@ -14,9 +14,9 @@ Run `node dev/test-login-search.cjs` and `node dev/test-bubble-canvas.cjs` for s
 
 ## Run on Windows
 
-Open the latest local copy at `\\DESKTOP-18DF4QI\Builds\Bitwarden Node.exe`. The single-file Windows x64 package extracts and launches Bitwarden Node with the existing production test profile. It disables automatic updates and leaves the official app's browser integration and `bitwarden://` registration alone.
+Open the latest local copy at `\\DESKTOP-18DF4QI\Builds\NodeVault.exe`. The single-file Windows x64 package extracts and launches NodeVault with the existing production test profile. It disables automatic updates and leaves the official app's browser integration and `bitwarden://` registration alone.
 
-To package and publish an existing production build, run `npm.cmd --prefix apps/desktop run pack:node`. The packaging step builds `apps/desktop/dist-node/Bitwarden Node.exe` and copies that executable to `\\DESKTOP-18DF4QI\Builds\Bitwarden Node.exe`, verifying its SHA256 hash. Publish every latest production build there.
+To package and publish an existing production build, run `npm.cmd --prefix apps/desktop run pack:node`. The packaging step builds `apps/desktop/dist-node/NodeVault.exe` and copies that executable to `\\DESKTOP-18DF4QI\Builds\NodeVault.exe`, verifying its SHA256 hash. Publish every latest production build there.
 
 ## Develop the app
 
@@ -34,7 +34,7 @@ Use the launchers in `dev`.
 - **Build-NodeVault-Production.cmd** rebuilds production and publishes the Windows package after source edits.
 - **Start-NodeVault-Dev.cmd** opens the development build with DevTools enabled. Run `.\dev\Start-NodeVault-Dev.cmd rebuild` from the source folder to rebuild it after source edits.
 
-Each launcher builds its version if the output is missing. Production uses `apps/desktop/build` and the existing `%LOCALAPPDATA%\NodeVault-Bitwarden-Test` profile. Development uses `apps/desktop/build-dev` and its own `%LOCALAPPDATA%\NodeVault-Bitwarden-Dev` profile, so sign in separately on first launch. Each profile has its own native IPC pipe and is separate from the official client's profile.
+Each launcher builds its version if the output is missing. Production uses `apps/desktop/build-nodevault` and the existing `%LOCALAPPDATA%\NodeVault-Bitwarden-Test` profile. Development uses `apps/desktop/build-dev` and its own `%LOCALAPPDATA%\NodeVault-Bitwarden-Dev` profile, so sign in separately on first launch. Each profile has its own native IPC pipe and is separate from the official client's profile.
 
 Sign in with a disposable account and create fictional logins. Check editing and saving through the drawer, cancel and confirm deletion, verify Trash, then test lock, logout, and account switching.
 

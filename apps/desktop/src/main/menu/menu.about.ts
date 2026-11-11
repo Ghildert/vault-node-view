@@ -56,8 +56,7 @@ export class AboutMenu implements IMenubarMenu {
   private get aboutBitwarden(): MenuItemConstructorOptions {
     return {
       id: "aboutBitwarden",
-      label:
-        app.name === "Bitwarden Node" ? "About Bitwarden Node" : this.localize("aboutBitwarden"),
+      label: app.name === "NodeVault" ? "About NodeVault" : this.localize("aboutBitwarden"),
       click: async () => {
         const sdkVersion = await this._versionMain.sdkVersion();
         const aboutInformation =
@@ -73,13 +72,15 @@ export class AboutMenu implements IMenubarMenu {
           "\nArchitecture " +
           process.arch;
         const productName =
-          app.name === "Bitwarden Node"
+          app.name === "NodeVault"
             ? app.name
             : this.localize(flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden");
         const result = await dialog.showMessageBox(this._window, {
           title: productName,
           message: productName,
-          detail: aboutInformation,
+          detail:
+            aboutInformation +
+            "\n\nIndependent NodeVault fork by Ghildert.\nBased on Bitwarden® open-source code.\nNot affiliated with or endorsed by Bitwarden, Inc.\nUpstream copyright and license notices are preserved; see LICENSE.txt.",
           type: "info",
           noLink: true,
           buttons: [this.localize("ok"), this.localize("copy")],

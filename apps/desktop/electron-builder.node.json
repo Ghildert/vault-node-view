@@ -1,12 +1,12 @@
 {
-  "productName": "Bitwarden Node",
-  "appId": "local.bitwarden.node",
+  "productName": "NodeVault",
+  "appId": "local.nodevault.desktop",
   "electronVersion": "43.5.0",
   "electronDist": "../../node_modules/electron/dist",
   "beforeBuild": "scripts/after-pack-node.js",
   "afterPack": "scripts/after-pack-node.js",
   "directories": {
-    "app": "build",
+    "app": "build-nodevault",
     "output": "dist-node"
   },
   "asarUnpack": ["**/*.node"],
@@ -20,12 +20,15 @@
     }
   ],
   "portable": {
-    "artifactName": "Bitwarden Node.exe"
+    "artifactName": "NodeVault.exe"
   },
   "win": {
     "icon": "src/images/icon_node.ico",
     "signAndEditExecutable": false,
     "extraFiles": [
+      { "from": "../../LICENSE.txt", "to": "LICENSE.txt" },
+      { "from": "../../LICENSE_GPL.txt", "to": "LICENSE_GPL.txt" },
+      { "from": "../../LICENSE_BITWARDEN.txt", "to": "LICENSE_BITWARDEN.txt" },
       {
         "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-x64.exe",
         "to": "bitwarden_chromium_import_helper.exe"

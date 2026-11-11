@@ -1,4 +1,5 @@
 build-dev/
+build-nodevault/
 dist-node/
 dist-safari/
 *.nupkg

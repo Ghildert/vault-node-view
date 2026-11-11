@@ -328,7 +328,7 @@ export class Main {
       app.getPath("userData"),
       app.getPath("exe"),
       app.getAppPath(),
-      app.name !== "Bitwarden Node",
+      app.name !== "NodeVault",
     );
 
     this.ipcService = new IpcMainService(
@@ -406,7 +406,7 @@ export class Main {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();
         const trayName =
-          app.name === "Bitwarden Node"
+          app.name === "NodeVault"
             ? app.name
             : this.i18nService.t(flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden");
         await this.trayMain.init(trayName, [
@@ -450,7 +450,7 @@ export class Main {
           this.logService.error("Error while setting up native messaging:", err);
         }
 
-        if (app.name !== "Bitwarden Node") {
+        if (app.name !== "NodeVault") {
           app.removeAsDefaultProtocolClient("bitwarden");
           if (process.env.NODE_ENV === "development" && process.platform === "win32") {
             // Fix development build on Windows requiring a different protocol client

@@ -1,12 +1,12 @@
 $ErrorActionPreference = 'Stop'
 
-$package = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../dist-node/Bitwarden Node.exe')).Path
+$package = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../dist-node/NodeVault.exe')).Path
 $directory = '\\DESKTOP-18DF4QI\Builds'
 if (!(Test-Path -LiteralPath $directory -PathType Container)) {
     [void][IO.Directory]::CreateDirectory($directory)
 }
-$destination = Join-Path $directory 'Bitwarden Node.exe'
-$stagedFile = Join-Path $directory ('.BitwardenNode-' + [Guid]::NewGuid().ToString('N') + '.tmp')
+$destination = Join-Path $directory 'NodeVault.exe'
+$stagedFile = Join-Path $directory ('.NodeVault-' + [Guid]::NewGuid().ToString('N') + '.tmp')
 try {
     [IO.File]::Copy($package, $stagedFile)
     if ((Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash -ne (Get-FileHash -LiteralPath $stagedFile -Algorithm SHA256).Hash) {

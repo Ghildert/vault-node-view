@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $workspace = Split-Path -Parent $PSScriptRoot
 $desktop = Join-Path $workspace 'apps/desktop'
-$outputDirectory = if ($Development) { 'build-dev' } else { 'build' }
+$outputDirectory = if ($Development) { 'build-dev' } else { 'build-nodevault' }
 $buildScript = if ($Development) { 'build:dev' } else { 'build' }
 $startScript = if ($Development) { 'start:dev' } else { 'start' }
 $profile = if ($Development) { 'NodeVault-Bitwarden-Dev' } else { 'NodeVault-Bitwarden-Test' }

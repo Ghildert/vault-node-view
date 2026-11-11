@@ -1,18 +1,21 @@
 {
-  "name": "bitwarden-node",
-  "productName": "Bitwarden Node",
-  "desktopName": "bitwarden-node.desktop",
-  "description": "A local Bitwarden Desktop fork with a node-based vault view.",
+  "name": "nodevault",
+  "productName": "NodeVault",
+  "desktopName": "nodevault.desktop",
+  "description": "Independent desktop password manager with a node-based vault view.",
   "version": "2026.10.4",
-  "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
-  "homepage": "https://bitwarden.com",
+  "author": "Ghildert",
+  "homepage": "https://github.com/Ghildert/vault-node-view",
   "license": "GPL-3.0",
   "main": "main.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bitwarden/clients.git"
+    "url": "git+https://github.com/Ghildert/vault-node-view.git"
   },
   "dependencies": {
     "@bitwarden/desktop-napi": "file:../desktop_native/napi"
-  }
+  },
+  "contributors": [
+    "Upstream code copyright Bitwarden Inc. and contributors; see LICENSE.txt."
+  ]
 }

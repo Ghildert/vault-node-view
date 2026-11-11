@@ -23,7 +23,7 @@ const DEFAULT_PARAMS = {
     ? path.isAbsolute(process.env.OUTPUT_PATH)
       ? process.env.OUTPUT_PATH
       : path.resolve(__dirname, process.env.OUTPUT_PATH)
-    : path.resolve(__dirname, "build"),
+    : path.resolve(__dirname, "build-nodevault"),
 };
 
 /**
@@ -176,7 +176,11 @@ module.exports.buildConfig = function buildConfig(params) {
                 },
               ]
             : []),
-          { from: path.resolve(__dirname, "src/locales"), to: "locales" },
+          {
+            from: path.resolve(__dirname, "src/locales"),
+            to: "locales",
+            transform: require("./scripts/nodevault-branding"),
+          },
         ],
       }),
       new DefinePlugin({

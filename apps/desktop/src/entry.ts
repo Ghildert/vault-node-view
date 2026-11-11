@@ -41,10 +41,10 @@ if (
     process.exit(1);
   });
 } else {
-  if (app.name === "Bitwarden Node") {
+  if (app.name === "NodeVault") {
     process.env.BITWARDEN_NO_UPDATER = "1";
     if (process.platform === "win32") {
-      app.setAppUserModelId("local.bitwarden.node");
+      app.setAppUserModelId("local.nodevault.desktop");
       // Reuse the local test profile without opening the official client's vault profile.
       process.env.BITWARDEN_APPDATA_DIR ??= path.join(
         process.env.LOCALAPPDATA ?? app.getPath("appData"),

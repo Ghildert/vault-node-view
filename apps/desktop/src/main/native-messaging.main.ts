@@ -40,7 +40,7 @@ export class NativeMessagingMain {
       "nativeMessaging.manifests",
       async (_event: any, options: { create: boolean }) => {
         if (!this.registerBrowserHosts) {
-          return new Error("Browser integration is unavailable in Bitwarden Node.");
+          return new Error("Browser integration is unavailable in NodeVault.");
         }
         if (options.create) {
           try {
@@ -67,7 +67,7 @@ export class NativeMessagingMain {
       "nativeMessaging.ddgManifests",
       async (_event: any, options: { create: boolean }) => {
         if (!this.registerBrowserHosts) {
-          return new Error("Browser integration is unavailable in Bitwarden Node.");
+          return new Error("Browser integration is unavailable in NodeVault.");
         }
         if (options.create) {
           try {
